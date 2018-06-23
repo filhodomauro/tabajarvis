@@ -7,28 +7,27 @@ import (
 )
 
 func main() {
-	router := configureRouter()
+	router := ConfigureRouter()
 	router.Run()
 }
 
-func configureRouter() *gin.Engine {
+func ConfigureRouter() *gin.Engine {
 	router := gin.Default()
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(200, "pong")
 	})
 
-	router.GET("/webhook", func(c *gin.Context) {
+	router.GET("/handshake", func(c *gin.Context) {
 		verifyToken := os.Getenv("VERIFY_TOKEN")
-		challenge := c.Params.ByName("hub.challenge")
-		mode := c.Params.ByName("hub.mode")
-		facebookVerifyToken := c.Params.ByName("hub.verify_token")
+		challenge := c.Query("hub.challenge")
+		mode := c.Query("hub.mode")
+		facebookVerifyToken := c.Query("hub.verify_token")
 
 		if mode == "subscribe" && facebookVerifyToken == verifyToken {
 			c.String(200, challenge)
 		} else {
 			c.String(403, "Unnautorized")
 		}
-
 	})
 	return router
 }
