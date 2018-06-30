@@ -27,7 +27,7 @@ func TestSuccessHandshake(t *testing.T) {
 	router := ConfigureRouter()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/handshake?hub.mode=subscribe&hub.challenge=x1&hub.verify_token=aaa", nil)
+	req, _ := http.NewRequest("GET", "/webhook?hub.mode=subscribe&hub.challenge=x1&hub.verify_token=aaa", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
@@ -39,7 +39,7 @@ func TestSuccessHandshakeFailByToken(t *testing.T) {
 	router := ConfigureRouter()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/handshake?hub.mode=subscribe&hub.challenge=x1&hub.verify_token=aaba", nil)
+	req, _ := http.NewRequest("GET", "/webhook?hub.mode=subscribe&hub.challenge=x1&hub.verify_token=aaba", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 403, w.Code)
@@ -51,7 +51,7 @@ func TestSuccessHandshakeFailByMode(t *testing.T) {
 	router := ConfigureRouter()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/handshake?hub.mode=message&hub.challenge=x1&hub.verify_token=aaa", nil)
+	req, _ := http.NewRequest("GET", "/webhook?hub.mode=message&hub.challenge=x1&hub.verify_token=aaa", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 403, w.Code)
@@ -90,7 +90,7 @@ func TestSuccessProcessMessage(t *testing.T) {
 		  }
 		]
 	  }`)
-	req, _ := http.NewRequest("POST", "/processMessage", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/webhook", bytes.NewBuffer(body))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 }
