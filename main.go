@@ -1,11 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 )
+
+const facebookAPI = "https://graph.facebook.com/v2.6/me/messages?access_token=%s"
 
 func main() {
 	router := ConfigureRouter()
@@ -41,6 +47,10 @@ func processMessage(c *gin.Context) {
 		if event.Object == "page" {
 			for _, entry := range event.Entries {
 				log.Printf("Entry received: %v", entry)
+				if messaging := entry.Messaging[0]; messaging.Message.Text != "" {
+					log.Printf("Message: %v", messaging.Message.Text)
+					sendMessage(messaging.Sender.ID, "42")
+				}
 			}
 		} else {
 			log.Printf("Event not supported: %v", event.Object)
@@ -51,5 +61,26 @@ func processMessage(c *gin.Context) {
 		log.Printf("Body: %v", c)
 		log.Printf("Erro: %v", err)
 		c.String(200, "Message received")
+	}
+}
+
+func sendMessage(recipient string, text string) {
+	messaging := Messaging{
+		Message: Message{
+			Text: text,
+		},
+		Recipient: User{
+			ID: recipient,
+		},
+	}
+	url := fmt.Sprintf(facebookAPI, os.Getenv("PAGE_ACCESS_TOKEN"))
+	body := new(bytes.Buffer)
+	json.NewEncoder(body).Encode(messaging)
+	res, err := http.Post(url, "application/json; charset=utf-8", body)
+
+	if err != nil {
+		log.Printf("Error to send message: %v", err)
+	} else {
+		log.Printf("Message sent: %v", res)
 	}
 }
