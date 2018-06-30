@@ -17,8 +17,8 @@ func ConfigureRouter() *gin.Engine {
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(200, "pong")
 	})
-	router.GET("/handshake", handshake)
-	router.POST("/processMessage", processMessage)
+	router.GET("/webhook", handshake)
+	router.POST("/webhook", processMessage)
 	return router
 }
 
